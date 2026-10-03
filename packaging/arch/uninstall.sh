@@ -15,6 +15,7 @@ rm -f "$PAM_FILE.bak-fingerprint-ocv"
 
 systemctl disable --now fprintd.service 2>/dev/null || true
 rm -f /etc/systemd/system/fprintd.service /usr/local/bin/fingerprint-ocv
+rm -f /usr/lib/systemd/system-sleep/fingerprint-ocv
 systemctl daemon-reload
 [ "${1:-}" = "--purge" ] && rm -rf /var/lib/fingerprint-ocv && echo "deleted enrolled prints"
 echo "fingerprint-ocv removed"

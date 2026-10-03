@@ -27,6 +27,8 @@ systemctl daemon-reload
 # started at boot and kept running (see the unit); restart picks up a new binary
 systemctl enable fprintd.service
 systemctl restart fprintd.service
+# stopped before suspend and started fresh after resume (the reader is reset on resume)
+install -Dm755 "$HERE/fingerprint-ocv.sleep" /usr/lib/systemd/system-sleep/fingerprint-ocv
 echo "daemon installed and running: /usr/local/bin/fingerprint-ocv (unit /etc/systemd/system/fprintd.service)"
 
 if [ "${1:-}" = "--pam" ]; then

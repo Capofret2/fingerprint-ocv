@@ -16,8 +16,10 @@ Changes against upstream:
 - jinx: fixes the release build with GCC 15 (the submodule points at a fork branch);
 - emits `VerifyFingerSelected`, so pam_fprintd shows its "Place your finger on ..."
   prompt, and names the device "the power button fingerprint reader";
-- `packaging/arch/`: a hardened systemd unit installed as `fprintd.service`, an install
-  script with an optional sudo PAM step, and an uninstall script.
+- `packaging/arch/`: a hardened systemd unit installed as `fprintd.service`, a
+  system-sleep hook that restarts the daemon around suspend (the reader is reset on
+  resume), an install script with an optional sudo PAM step, and an uninstall script;
+- fixes two aborts: the reader reset on resume, and `Release` during a verify.
 
 ```sh
 sudo pacman -S --needed base-devel cmake libusb libevent openssl opencv
