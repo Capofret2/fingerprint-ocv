@@ -19,7 +19,13 @@ find_package(OpenCV REQUIRED)
 
 add_library(cvext STATIC cvext.cpp)
 target_include_directories(cvext PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(cvext PUBLIC opencv_core opencv_imgproc opencv_features2d opencv_imgcodecs opencv_calib3d opencv_flann)
+# OpenCV 5 renamed features2d -> features and split calib3d into calib/geometry
+if(OpenCV_VERSION_MAJOR GREATER_EQUAL 5)
+    set(CVEXT_CV_MODULES opencv_features opencv_calib opencv_geometry)
+else()
+    set(CVEXT_CV_MODULES opencv_features2d opencv_calib3d)
+endif()
+target_link_libraries(cvext PUBLIC opencv_core opencv_imgproc opencv_imgcodecs opencv_flann ${CVEXT_CV_MODULES})
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
 target_link_libraries(cvext PUBLIC opencv_highgui)
