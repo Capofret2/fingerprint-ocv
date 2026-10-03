@@ -475,6 +475,7 @@ class WorkerDevice : public AsyncDBusObject {
     TaskPtr _name_owner_chaged_task{};
 
     std::string _device_name{};
+    std::string _selected_finger{};
     int _num_enroll_stages{};
     std::string _scan_type{};
 
@@ -531,7 +532,9 @@ public:
 
         add_method("org.freedesktop.DBus", "NameOwnerChanged", "sss", &WorkerDevice::name_owner_changed);
 
-        _device_name = device_id;
+        // shown to users, e.g. by pam_fprintd: "Place your finger on <name>"
+        _device_name = "the power button fingerprint reader";
+        (void)device_id;
         _scan_type = "press";
         _num_enroll_stages = 10;
         _device_state._finger_present = false;
@@ -926,7 +929,24 @@ protected:
         AsyncDBusMessage reply{
             dbus_message_new_method_return(get_message())
         };
+        if (is_verify) {
+            _selected_finger = finger_name;
+            return *this / _send_message(_connection, reply) / &WorkerDevice::send_finger_selected;
+        }
         return *this / _send_message(_connection, reply) / &WorkerDevice::run;
+    }
+
+    // fprintd announces the finger it is waiting for ("any" when any enrolled one will
+    // do); pam_fprintd prints its "Place your finger on ..." prompt only on this signal
+    Async send_finger_selected() {
+        AsyncDBusMessage signal{
+            dbus_message_new_signal(_dbus_path.c_str(), "net.reactivated.Fprint.Device", "VerifyFingerSelected")
+        };
+        const char* finger = _selected_finger.c_str();
+        DBusMessageIter iter{};
+        dbus_message_iter_init_append(signal, &iter);
+        dbus_message_iter_append_basic(&iter, DBUS_TYPE_STRING, &finger);
+        return *this / _send_message(_connection, signal) / &WorkerDevice::run;
     }
 
     Async enroll_verify_stop() {
