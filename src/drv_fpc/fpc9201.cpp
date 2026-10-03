@@ -863,7 +863,8 @@ protected:
         }
 
         if (_enroll_verify_task != nullptr) {
-            _enroll_verify_task->resume({}) >> JINX_IGNORE_RESULT;
+            // cancel, not resume: the task may be waiting on the image queue
+            async_cancel(_enroll_verify_task) >> JINX_IGNORE_RESULT;
             _enroll_verify_task.reset();
         }
 
@@ -1287,7 +1288,7 @@ protected:
             return state;
         }
 
-        if (error.category() == jinx::usb::category_transfer()) {
+        if (error.category() == jinx::usb::category_usb()) {
             if (static_cast<libusb_error>(error.value()) == LIBUSB_ERROR_NO_DEVICE) {
                 _event_queue->reset();
                 return async_return();
