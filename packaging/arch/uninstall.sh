@@ -13,7 +13,7 @@ if grep -q "# fingerprint-ocv" "$PAM_FILE"; then
 fi
 rm -f "$PAM_FILE.bak-fingerprint-ocv"
 
-systemctl stop fprintd.service 2>/dev/null || true
+systemctl disable --now fprintd.service 2>/dev/null || true
 rm -f /etc/systemd/system/fprintd.service /usr/local/bin/fingerprint-ocv
 systemctl daemon-reload
 [ "${1:-}" = "--purge" ] && rm -rf /var/lib/fingerprint-ocv && echo "deleted enrolled prints"

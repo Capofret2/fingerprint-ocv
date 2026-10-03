@@ -24,8 +24,10 @@ pacman -S --needed --noconfirm fprintd
 install -Dm755 "$BIN" /usr/local/bin/fingerprint-ocv
 install -Dm644 "$HERE/fprintd.service" /etc/systemd/system/fprintd.service
 systemctl daemon-reload
-systemctl stop fprintd.service 2>/dev/null || true
-echo "daemon installed: /usr/local/bin/fingerprint-ocv (unit /etc/systemd/system/fprintd.service)"
+# started at boot and kept running (see the unit); restart picks up a new binary
+systemctl enable fprintd.service
+systemctl restart fprintd.service
+echo "daemon installed and running: /usr/local/bin/fingerprint-ocv (unit /etc/systemd/system/fprintd.service)"
 
 if [ "${1:-}" = "--pam" ]; then
     if ! grep -q "pam_fprintd.so" "$PAM_FILE"; then

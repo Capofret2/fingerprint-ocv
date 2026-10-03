@@ -1,6 +1,7 @@
 # fingerprint-ocv as the system's fprintd: installed as /etc/systemd/system/fprintd.service
-# it overrides the fprintd package's unit, so D-Bus activation of net.reactivated.Fprint
-# (fprintd-enroll, pam_fprintd, ...) starts this daemon instead. Started on demand only.
+# it overrides the fprintd package's unit, so net.reactivated.Fprint (fprintd-enroll,
+# pam_fprintd, ...) is served by this daemon. It runs from boot: it takes the bus name
+# before its objects exist, so a call that D-Bus-activates it would hit UnknownMethod.
 [Unit]
 Description=Fingerprint authentication daemon (fingerprint-ocv, FPC 10a5:9201)
 Documentation=https://github.com/vrolife/fingerprint-ocv
@@ -23,3 +24,6 @@ ProtectKernelModules=yes
 ProtectControlGroups=yes
 RestrictAddressFamilies=AF_UNIX AF_NETLINK
 LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target
